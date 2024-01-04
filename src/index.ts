@@ -1,9 +1,7 @@
-import { Hono } from 'hono'
+import { Hono } from "hono";
+import { Bindings } from "./bindings";
+import { NewPage } from "./views/New";
+import { UrlRepository } from "./models/url";
+import { app } from "./app";
 
-const app = new Hono()
-
-app.get('/', (c) => {
-  return c.text('Hello Hono!')
-})
-
-export default app
+export default app;
