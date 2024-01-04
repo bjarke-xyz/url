@@ -5,6 +5,7 @@ import { NewPage } from "./views/New";
 import { IndexPage } from "./views/Index";
 import { ViewPage } from "./views/View";
 import { formatISO } from "date-fns";
+import { getBaseUrl } from "./util";
 
 export const app = new Hono<{ Bindings: Bindings }>();
 
@@ -37,7 +38,7 @@ app.post("/new", async (c) => {
     }
   }
   const ip = c.req.header("CF-Connecting-IP");
-  const key = keyInput ?? (await urlRepo.getUniqueKey());
+  const key = keyInput || (await urlRepo.getUniqueKey());
   await urlRepo.setUrl({
     urlKey: key,
     url: url,
@@ -60,7 +61,10 @@ app.get("/view", async (c) => {
       urlFound = false;
     }
   }
-  return c.html(ViewPage(key, url, urlFound));
+  console.log(c.req.header());
+  return c.html(
+    ViewPage(key, url, urlFound, getBaseUrl(c.req.header("host") ?? ""))
+  );
 });
 
 app.get("/:key", async (c) => {
