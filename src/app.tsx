@@ -44,6 +44,7 @@ app.post("/new", async (c) => {
     url: url,
     createdAt: formatISO(new Date()),
     createdByIp: ip,
+    visits: 0,
   });
   return c.redirect(`/view?key=${key}`);
 });
@@ -53,8 +54,13 @@ app.get("/view", async (c) => {
   const key = c.req.query()["key"];
   let url: string | null = null;
   let urlFound: boolean | null = null;
+  let visits: number | null = null;
+  let lastVisitedAt: string | null = null;
   if (key) {
-    url = (await urlRepo.getUrl(key))?.url ?? null;
+    const urlObj = await urlRepo.getUrl(key);
+    visits = urlObj?.visits ?? null;
+    lastVisitedAt = urlObj?.lastVisitedAt ?? null;
+    url = urlObj?.url ?? null;
     if (url) {
       urlFound = true;
     } else {
@@ -63,7 +69,14 @@ app.get("/view", async (c) => {
   }
   console.log(c.req.header());
   return c.html(
-    ViewPage(key, url, urlFound, getBaseUrl(c.req.header("host") ?? ""))
+    ViewPage(
+      key,
+      url,
+      urlFound,
+      getBaseUrl(c.req.header("host") ?? ""),
+      visits,
+      lastVisitedAt
+    )
   );
 });
 
@@ -74,5 +87,6 @@ app.get("/:key", async (c) => {
   if (!url) {
     return c.redirect("/");
   }
+  c.executionCtx.waitUntil(urlRepo.incrementVisits(key));
   return c.redirect(url);
 });

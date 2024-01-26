@@ -1,3 +1,4 @@
+import { formatISO } from "date-fns";
 import { Kysely } from "kysely";
 import { D1Dialect } from "kysely-d1";
 import { customAlphabet } from "nanoid";
@@ -10,6 +11,8 @@ interface Url {
   url: string;
   createdAt: string;
   createdByIp?: string;
+  visits: number;
+  lastVisitedAt?: string;
 }
 
 interface Database {
@@ -36,6 +39,17 @@ export class UrlRepository {
 
   public async setUrl(url: Url): Promise<void> {
     await this.db.insertInto("urls").values(url).execute();
+  }
+
+  public async incrementVisits(key: string): Promise<void> {
+    await this.db
+      .updateTable("urls")
+      .set((eb) => ({
+        lastVisitedAt: formatISO(new Date()),
+        visits: eb.eb("visits", "+", 1),
+      }))
+      .where("urlKey", "=", key)
+      .execute();
   }
 
   public async isKeyUnique(key: string): Promise<boolean> {

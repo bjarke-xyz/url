@@ -4,7 +4,9 @@ export const ViewPage = (
   key: string | null,
   url: string | null,
   urlFound: boolean | null,
-  baseUrl: string
+  baseUrl: string,
+  visits: number | null,
+  lastVisitedAt: string | null
 ) => {
   let shortenedUrl = "";
   if (key) {
@@ -25,11 +27,22 @@ export const ViewPage = (
           <a href={shortenedUrl}>{shortenedUrl}</a>
           <span> → </span>
           <a href={url}>{url}</a>
+          <br />
+          <br />
         </p>
       ) : (
         <></>
       )}
       {urlFound === false ? <p>Url not found</p> : <></>}
+
+      {visits && visits > 0 && lastVisitedAt ? (
+        <>
+          <p>Redirected {visits} times</p>
+          <p>Last redirected at {lastVisitedAt}</p>
+        </>
+      ) : (
+        <></>
+      )}
     </Layout>
   );
 };
