@@ -1,22 +1,16 @@
 {
   "scripts": {
-    "dev": "wrangler dev src/index.ts",
-    "deploy": "wrangler deploy --minify src/index.ts",
-    "migrate-local": "wrangler d1 migrations apply url --local",
-    "migrate": "wrangler d1 migrations apply url",
-    "list-migrations-local": "wrangler d1 migrations list url --local",
-    "list-migrations": "wrangler d1 migrations list url",
-    "create-migration": "wrangler d1 migrations create url"
+    "dev": "bun run --hot src/index.ts",
+    "prod": "bun run src/index.ts"
   },
   "dependencies": {
+    "@libsql/kysely-libsql": "^0.4.1",
     "date-fns": "^3.0.6",
-    "hono": "^4.6.5",
+    "hono": "^4.7.2",
     "kysely": "^0.27.1",
-    "kysely-d1": "^0.3.0",
     "nanoid": "^5.0.4"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20231218.0",
-    "wrangler": "^3.22.2"
+    "@types/bun": "latest"
   }
 }

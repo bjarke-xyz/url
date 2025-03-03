@@ -1,6 +1,6 @@
+import { LibsqlDialect } from "@libsql/kysely-libsql";
 import { formatISO } from "date-fns";
 import { Kysely } from "kysely";
-import { D1Dialect } from "kysely-d1";
 import { customAlphabet } from "nanoid";
 
 const nanoid = customAlphabet("1234567890abcdef", 10);
@@ -19,11 +19,19 @@ interface Database {
   urls: Url;
 }
 
+export interface LibsqlConnectionInfo {
+  url: string;
+  authToken: string;
+}
+
 export class UrlRepository {
   private readonly db: Kysely<Database>;
-  constructor(d1db: D1Database) {
+  constructor(connInfo: LibsqlConnectionInfo) {
     this.db = new Kysely<Database>({
-      dialect: new D1Dialect({ database: d1db }),
+      dialect: new LibsqlDialect({
+        url: connInfo.url,
+        authToken: connInfo.authToken,
+      }),
     });
   }
 

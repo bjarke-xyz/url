@@ -1,7 +1,7 @@
 import { html } from "hono/html";
 import type { FC } from "hono/jsx";
 
-export const Layout: FC<{ title: string }> = (props) => {
+export const Layout: FC<{ title: string; children: unknown[] }> = (props) => {
   const baseTitle = "Url";
   const title = props.title ? `${props.title} | ${baseTitle}` : baseTitle;
   return html`

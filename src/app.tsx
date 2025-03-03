@@ -1,13 +1,14 @@
-import { Hono } from "hono";
-import { Bindings } from "./bindings";
-import { UrlRepository } from "./models/url";
-import { NewPage } from "./views/New";
-import { IndexPage } from "./views/Index";
-import { ViewPage } from "./views/View";
 import { formatISO } from "date-fns";
-import { getBaseUrl } from "./util";
+import { Hono } from "hono";
+import { logger } from "hono/logger";
+import { UrlRepository } from "./models/url";
+import { getBaseUrl, getLibsqlConnInfo } from "./util";
+import { IndexPage } from "./views/Index";
+import { NewPage } from "./views/New";
+import { ViewPage } from "./views/View";
 
-export const app = new Hono<{ Bindings: Bindings }>();
+export const app = new Hono();
+app.use(logger());
 
 app.get("/", (c) => {
   return c.html(IndexPage());
@@ -19,9 +20,9 @@ app.get("/new", (c) => {
 });
 
 app.post("/new", async (c) => {
-  const urlRepo = new UrlRepository(c.env.DB);
+  const urlRepo = new UrlRepository(getLibsqlConnInfo());
   const formData = await c.req.formData();
-  const url = formData.get("url");
+  const url = formData.get("url")?.toString();
   if (!url) {
     return c.redirect(`/new?err=no url provided`);
   }
@@ -30,14 +31,14 @@ app.post("/new", async (c) => {
   } catch (error) {
     return c.redirect(`/new?err=invalid url`);
   }
-  const keyInput = formData.get("key");
+  const keyInput = formData.get("key")?.toString();
   if (keyInput) {
     const isUnique = await urlRepo.isKeyUnique(keyInput);
     if (!isUnique) {
       return c.redirect(`/new?err=key already exists`);
     }
   }
-  const ip = c.req.header("CF-Connecting-IP");
+  const ip = c.req.header("X-Real-IP") ?? c.req.header("CF-Connecting-IP");
   const key = keyInput || (await urlRepo.getUniqueKey());
   await urlRepo.setUrl({
     urlKey: key,
@@ -50,7 +51,7 @@ app.post("/new", async (c) => {
 });
 
 app.get("/view", async (c) => {
-  const urlRepo = new UrlRepository(c.env.DB);
+  const urlRepo = new UrlRepository(getLibsqlConnInfo());
   const key = c.req.query()["key"];
   let url: string | null = null;
   let urlFound: boolean | null = null;
@@ -67,7 +68,6 @@ app.get("/view", async (c) => {
       urlFound = false;
     }
   }
-  console.log(c.req.header());
   return c.html(
     ViewPage(
       key,
@@ -82,11 +82,11 @@ app.get("/view", async (c) => {
 
 app.get("/:key", async (c) => {
   const { key } = c.req.param();
-  const urlRepo = new UrlRepository(c.env.DB);
+  const urlRepo = new UrlRepository(getLibsqlConnInfo());
   const url = (await urlRepo.getUrl(key))?.url;
   if (!url) {
     return c.redirect("/");
   }
-  c.executionCtx.waitUntil(urlRepo.incrementVisits(key));
+  await urlRepo.incrementVisits(key);
   return c.redirect(url);
 });
