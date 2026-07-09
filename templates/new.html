@@ -1,0 +1,12 @@
+{{define "content"}}
+<div>
+  <a href="/">Home</a>
+</div>
+<h1>New url</h1>
+{{if .}}<div style="color: red">{{.}}</div>{{end}}
+<form method="post">
+  <input name="key" placeholder="Key (optional)" />
+  <input name="url" placeholder="https://example.org" />
+  <button type="submit">Create</button>
+</form>
+{{end}}

@@ -1,12 +1,7 @@
-node_modules
-dist
-.dev.vars
-
-#package-lock.json
-yarn.lock
-pnpm-lock.yaml
-
-database.sql
+/url
+*.db
+*.db-shm
+*.db-wal
 
 .DS_Store
 

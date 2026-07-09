@@ -1,7 +1,10 @@
-.PHONY: dev
+.PHONY: dev build run
 
 dev:
-	bun run dev
+	set -a; [ -f .env ] && . ./.env; set +a; go run .
 
-prod:
-	bun run prod
+build:
+	CGO_ENABLED=0 go build -ldflags="-s -w" -o url .
+
+run: build
+	./url
