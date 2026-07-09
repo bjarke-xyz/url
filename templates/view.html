@@ -4,7 +4,7 @@
 </div>
 <h1>View</h1>
 <form>
-  <input name="key" placeholder="IsOXNgE" value="{{.Key}}" />
+  <input name="key" placeholder="a1b2c3d" value="{{.Key}}" />
   <button type="submit">View</button>
 </form>
 
@@ -13,13 +13,10 @@
   <a href="{{.ShortURL}}">{{.ShortURL}}</a>
   <span> &rarr; </span>
   <a href="{{.URL}}">{{.URL}}</a>
-  <br />
-  <br />
 </p>
-{{end}}
-{{if and .Searched (not .Found)}}<p>Url not found</p>{{end}}
-{{if and (gt .Visits 0) .LastVisitedAt}}
-<p>Redirected {{.Visits}} times</p>
-<p>Last redirected at {{.LastVisitedAt}}</p>
-{{end}}
-{{end}}
+{{end}} {{if and .Searched (not .Found)}}
+<p>Url not found</p>
+{{end}} {{if and (gt .Visits 0) .LastVisitedAt}}
+<p class="muted">Redirected {{.Visits}} times</p>
+<p class="muted">Last redirected at {{.LastVisitedAt}}</p>
+{{end}} {{end}}

@@ -1,15 +1,102 @@
 {{define "layout"}}
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://unpkg.com/htmx.org@1.9.3"></script>
-    <script src="https://unpkg.com/hyperscript.org@0.9.9"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css"
-    />
     <title>{{.Title}}</title>
+    <style>
+      :root {
+        --bg: #fdfdfc;
+        --fg: #1f2328;
+        --muted: #6a737d;
+        --accent: #0b62d0;
+        --border: #d8dbe0;
+        --field: #fff;
+        --error: #c0392b;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #16181a;
+          --fg: #d5d8dc;
+          --muted: #8b949e;
+          --accent: #6cb0ff;
+          --border: #30363d;
+          --field: #1d2125;
+          --error: #f0857d;
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0 auto;
+        max-width: 40rem;
+        padding: 2.5rem 1.25rem 4rem;
+        background: var(--bg);
+        color: var(--fg);
+        font: 1rem/1.6 system-ui, -apple-system, "Segoe UI", sans-serif;
+      }
+      h1 {
+        margin: 0 0 1.25rem;
+        font-size: 1.5rem;
+        letter-spacing: -0.01em;
+      }
+      p {
+        margin: 0.5rem 0;
+      }
+      a {
+        color: var(--accent);
+        text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent);
+        text-underline-offset: 2px;
+      }
+
+      form {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin: 1.25rem 0;
+      }
+      input,
+      button {
+        font: inherit;
+        padding: 0.5rem 0.7rem;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+      }
+      input {
+        flex: 1 1 11rem;
+        min-width: 0;
+        background: var(--field);
+        color: inherit;
+      }
+      input::placeholder {
+        color: var(--muted);
+      }
+      input:focus-visible,
+      button:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 1px;
+      }
+      button {
+        border-color: transparent;
+        background: var(--accent);
+        color: var(--bg);
+        cursor: pointer;
+      }
+      button:hover {
+        filter: brightness(1.1);
+      }
+
+      .error {
+        color: var(--error);
+      }
+      .muted {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+    </style>
   </head>
   <body>
     {{template "content" .Data}}
