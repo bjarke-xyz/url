@@ -38,11 +38,8 @@ type Store struct {
 	db *sql.DB
 }
 
-// The rollback journal is deliberate, not an oversight: sqlite-backer-upper
-// backs this db up over a read-only bind mount, and a WAL database cannot be
-// opened at all without write access for its -shm file, even with no writers.
 func OpenStore(path string) (*Store, error) {
-	dsn := fmt.Sprintf("file:%s?_pragma=journal_mode(delete)&_pragma=busy_timeout(5000)", path)
+	dsn := fmt.Sprintf("file:%s?_pragma=journal_mode(WAL)&_pragma=busy_timeout(5000)", path)
 	db, err := sql.Open("sqlite", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("open %s: %w", path, err)
