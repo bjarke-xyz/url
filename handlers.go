@@ -119,8 +119,7 @@ func (s *server) redirect(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusFound)
 		return
 	}
-	// Rows predating scheme validation, e.g. imported from the old Turso
-	// database, may hold a javascript: url.
+	// Rows predating scheme validation may hold a javascript: url.
 	if !isRedirectable(target) {
 		http.Redirect(w, r, "/", http.StatusFound)
 		return
