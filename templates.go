@@ -38,7 +38,7 @@ func render(w http.ResponseWriter, name, title string, data any) {
 		Data  any
 	}{title, data})
 	if err != nil {
-		slog.Error("render failed", "page", name, "err", err)
+		slog.Error("render failed", "page", name, "error", err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}

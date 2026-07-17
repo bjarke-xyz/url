@@ -61,7 +61,7 @@ func (s *server) create(w http.ResponseWriter, r *http.Request) {
 	if key == "" {
 		generated, err := s.store.CreateWithGeneratedKey(entry)
 		if err != nil {
-			slog.Error("create failed", "err", err)
+			slog.Error("create failed", "error", err)
 			http.Error(w, "internal server error", http.StatusInternalServerError)
 			return
 		}
@@ -77,7 +77,7 @@ func (s *server) create(w http.ResponseWriter, r *http.Request) {
 			formError(w, r, "key already exists")
 			return
 		case err != nil:
-			slog.Error("create failed", "err", err)
+			slog.Error("create failed", "error", err)
 			http.Error(w, "internal server error", http.StatusInternalServerError)
 			return
 		}
@@ -95,7 +95,7 @@ func (s *server) view(w http.ResponseWriter, r *http.Request) {
 		switch {
 		case errors.Is(err, ErrNotFound):
 		case err != nil:
-			slog.Error("lookup failed", "key", key, "err", err)
+			slog.Error("lookup failed", "key", key, "error", err)
 			http.Error(w, "internal server error", http.StatusInternalServerError)
 			return
 		default:
@@ -114,7 +114,7 @@ func (s *server) redirect(w http.ResponseWriter, r *http.Request) {
 	target, err := s.store.Redirect(r.PathValue("key"))
 	if err != nil {
 		if !errors.Is(err, ErrNotFound) {
-			slog.Error("redirect failed", "err", err)
+			slog.Error("redirect failed", "error", err)
 		}
 		http.Redirect(w, r, "/", http.StatusFound)
 		return
@@ -179,8 +179,23 @@ func logRequests(next http.Handler) http.Handler {
 		start := time.Now()
 		rec := &statusRecorder{ResponseWriter: w, status: http.StatusOK}
 		next.ServeHTTP(rec, r)
-		slog.Info(r.Method+" "+r.URL.Path,
-			"status", rec.status, "duration", time.Since(start))
+
+		path := r.URL.Path
+		if r.URL.RawQuery != "" {
+			path += "?" + r.URL.RawQuery
+		}
+		// duration_ms is a float rather than a time.Duration because the two
+		// handlers encode a Duration differently — JSON writes raw nanoseconds,
+		// text writes "1.23ms" — which would make the field's type depend on
+		// LOG_FORMAT. Milliseconds rather than whole ms: these handlers mostly
+		// finish in under one.
+		slog.Info("request",
+			"method", r.Method,
+			"path", path,
+			"status", rec.status,
+			"duration_ms", float64(time.Since(start).Microseconds())/1000,
+			"ip", clientIP(r),
+		)
 	})
 }
 

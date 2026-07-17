@@ -8,11 +8,14 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/bjarke-xyz/url/internal/logging"
 )
 
 func main() {
+	logging.Setup()
 	if err := run(); err != nil {
-		slog.Error("fatal", "err", err)
+		slog.Error("fatal", "error", err)
 		os.Exit(1)
 	}
 }
@@ -38,8 +41,7 @@ func run() error {
 
 	errc := make(chan error, 1)
 	go func() {
-		slog.Info("listening", "addr", srv.Addr)
-		slog.Info("Click: http://localhost:" + env("PORT", "3000"))
+		slog.Info("listening", "addr", srv.Addr, "url", "http://localhost:"+env("PORT", "3000"))
 		errc <- srv.ListenAndServe()
 	}()
 
